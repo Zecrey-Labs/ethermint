@@ -105,11 +105,29 @@ func (e *EVM) RunStatefulPrecompiledContract(
 	return output, suppliedGas, err
 }
 
+// PreRunStatefulPrecompiledContract runs a stateful precompiled contract and ignores the address and
+// value arguments. It uses the RunPrecompiledContract function from the geth vm package
+func (e *EVM) PreRunStatefulPrecompiledContract(
+	p evm.StatefulPrecompiledContract,
+	caller common.Address, // address arg is unused
+	input []byte,
+	suppliedGas uint64,
+	value *big.Int,
+) (ret []byte, remainingGas uint64, err error) {
+	gasCost := p.RequiredGas(input)
+	if suppliedGas < gasCost {
+		return nil, 0, vm.ErrOutOfGas
+	}
+	suppliedGas -= gasCost
+	//output, err := p.RunStateful(e, caller, input, value)
+	return nil, suppliedGas, err
+}
+
 // Call executes the contract associated with the addr with the given input as
 // parameters. It also handles any necessary value transfer required and takes
 // the necessary steps to create accounts and reverses the state in case of an
 // execution error or failed value transfer.
-func (evm *EVM) Call(caller vm.ContractRef, addr common.Address, input []byte, gas uint64, value *big.Int) (ret []byte, leftOverGas uint64, err error) {
+func (evm *EVM) Call(caller vm.ContractRef, addr common.Address, input []byte, gas uint64, value *big.Int, commit bool) (ret []byte, leftOverGas uint64, err error) {
 	// Fail if we're trying to execute above the call depth limit
 	oEVM := reflect.ValueOf(evm.EVM).Elem()
 	depthValue := oEVM.FieldByName("depth")
@@ -173,7 +191,11 @@ func (evm *EVM) Call(caller vm.ContractRef, addr common.Address, input []byte, g
 
 	if isPrecompile {
 		if customPrecompiledContracts[addr] != nil {
-			ret, gas, err = evm.RunStatefulPrecompiledContract(customPrecompiledContracts[addr], caller.Address(), input, gas, value)
+			if !commit {
+				ret, gas, err = evm.PreRunStatefulPrecompiledContract(customPrecompiledContracts[addr], caller.Address(), input, gas, value)
+			} else {
+				ret, gas, err = evm.RunStatefulPrecompiledContract(customPrecompiledContracts[addr], caller.Address(), input, gas, value)
+			}
 		} else {
 			ret, gas, err = vm.RunPrecompiledContract(p, input, gas)
 		}

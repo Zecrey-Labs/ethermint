@@ -386,7 +386,7 @@ func (k *Keeper) ApplyMessageWithConfig(
 		ret, _, leftoverGas, vmErr = nEVM.Create(sender, msg.Data(), leftoverGas, msg.Value())
 		stateDB.SetNonce(sender.Address(), msg.Nonce()+1)
 	} else {
-		ret, leftoverGas, vmErr = nEVM.Call(sender, *msg.To(), msg.Data(), leftoverGas, msg.Value())
+		ret, leftoverGas, vmErr = nEVM.Call(sender, *msg.To(), msg.Data(), leftoverGas, msg.Value(), commit)
 	}
 
 	refundQuotient := params.RefundQuotient
