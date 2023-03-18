@@ -16,6 +16,7 @@
 package vm
 
 import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -29,7 +30,7 @@ type PrecompiledContracts map[common.Address]vm.PrecompiledContract
 
 type StatefulPrecompiledContract interface {
 	vm.PrecompiledContract
-	RunStateful(evm EVM, addr common.Address, input []byte, value *big.Int) (ret []byte, err error)
+	RunStateful(ctx sdk.Context, evm EVM, addr common.Address, input []byte, value *big.Int) (ret []byte, err error)
 }
 
 // EVM defines the interface for the Ethereum Virtual Machine used by the EVM module.
@@ -42,9 +43,8 @@ type EVM interface {
 	Cancel()
 	Cancelled() bool //nolint
 	Interpreter() *vm.EVMInterpreter
-	Call(caller vm.ContractRef, addr common.Address, input []byte, gas uint64, value *big.Int, commit bool) (ret []byte, leftOverGas uint64, err error)
+	Call(caller vm.ContractRef, addr common.Address, input []byte, gas uint64, value *big.Int) (ret []byte, leftOverGas uint64, err error)
 	CallCode(caller vm.ContractRef, addr common.Address, input []byte, gas uint64, value *big.Int) (ret []byte, leftOverGas uint64, err error)
-	DelegateCall(caller vm.ContractRef, addr common.Address, input []byte, gas uint64) (ret []byte, leftOverGas uint64, err error)
 	StaticCall(caller vm.ContractRef, addr common.Address, input []byte, gas uint64) (ret []byte, leftOverGas uint64, err error)
 	Create(caller vm.ContractRef, code []byte, gas uint64, value *big.Int) (ret []byte, contractAddr common.Address, leftOverGas uint64, err error)
 	Create2(
@@ -60,6 +60,7 @@ type EVM interface {
 	ActivePrecompiles(rules params.Rules) []common.Address
 	Precompile(addr common.Address) (vm.PrecompiledContract, bool)
 	RunStatefulPrecompiledContract(
+		ctx sdk.Context,
 		p StatefulPrecompiledContract,
 		addr common.Address,
 		input []byte,
