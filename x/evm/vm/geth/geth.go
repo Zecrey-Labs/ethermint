@@ -153,11 +153,6 @@ func (evm *EVM) Call(caller vm.ContractRef, addr common.Address, input []byte, g
 	if !ok {
 		return nil, gas, errors.New("unable to get chain rules")
 	}
-	interpreterValue := oEVM.FieldByName("interpreter")
-	interpreter, ok := reflect.NewAt(interpreterValue.Type(), unsafe.Pointer(interpreterValue.UnsafeAddr())).Elem().Interface().(*vm.EVMInterpreter)
-	if !ok {
-		return nil, gas, errors.New("unable to get interpreter")
-	}
 	// Fail if we're trying to transfer more than the available balance
 	if value.Sign() != 0 && !evm.Context().CanTransfer(evm.StateDB, caller.Address(), value) {
 		return nil, gas, vm.ErrInsufficientBalance
@@ -221,7 +216,7 @@ func (evm *EVM) Call(caller vm.ContractRef, addr common.Address, input []byte, g
 			// The depth-check is already done, and precompiles handled above
 			contract := vm.NewContract(caller, vm.AccountRef(addrCopy), value, gas)
 			contract.SetCallCode(&addrCopy, evm.StateDB.GetCodeHash(addrCopy), code)
-			ret, err = interpreter.Run(contract, input, false)
+			ret, err = evm.Interpreter().Run(contract, input, false)
 			gas = contract.Gas
 		}
 	}
@@ -253,11 +248,6 @@ func (evm *EVM) DelegateCall(caller vm.ContractRef, addr common.Address, input [
 	if !ok {
 		return nil, gas, vm.ErrDepth
 	}
-	interpreterValue := oEVM.FieldByName("interpreter")
-	interpreter, ok := reflect.NewAt(interpreterValue.Type(), unsafe.Pointer(interpreterValue.UnsafeAddr())).Elem().Interface().(*vm.EVMInterpreter)
-	if !ok {
-		return nil, gas, errors.New("unable to get interpreter")
-	}
 	if depth > int(params.CallCreateDepth) {
 		return nil, gas, vm.ErrDepth
 	}
@@ -283,7 +273,7 @@ func (evm *EVM) DelegateCall(caller vm.ContractRef, addr common.Address, input [
 		// Initialise a new contract and make initialise the delegate values
 		contract := vm.NewContract(caller, vm.AccountRef(caller.Address()), nil, gas).AsDelegate()
 		contract.SetCallCode(&addrCopy, evm.StateDB.GetCodeHash(addrCopy), evm.StateDB.GetCode(addrCopy))
-		ret, err = interpreter.Run(contract, input, false)
+		ret, err = evm.Interpreter().Run(contract, input, false)
 		gas = contract.Gas
 	}
 	if err != nil {
