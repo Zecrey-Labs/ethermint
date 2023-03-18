@@ -239,3 +239,58 @@ func (evm *EVM) Call(caller vm.ContractRef, addr common.Address, input []byte, g
 	}
 	return ret, gas, err
 }
+
+// DelegateCall executes the contract associated with the addr with the given input
+// as parameters. It reverses the state in case of an execution error.
+//
+// DelegateCall differs from CallCode in the sense that it executes the given address'
+// code with the caller as context and the caller is set to the caller of the caller.
+func (evm *EVM) DelegateCall(caller vm.ContractRef, addr common.Address, input []byte, gas uint64) (ret []byte, leftOverGas uint64, err error) {
+	// Fail if we're trying to execute above the call depth limit
+	oEVM := reflect.ValueOf(evm.EVM).Elem()
+	depthValue := oEVM.FieldByName("depth")
+	depth, ok := reflect.NewAt(depthValue.Type(), unsafe.Pointer(depthValue.UnsafeAddr())).Elem().Interface().(int)
+	if !ok {
+		return nil, gas, vm.ErrDepth
+	}
+	interpreterValue := oEVM.FieldByName("interpreter")
+	interpreter, ok := reflect.NewAt(interpreterValue.Type(), unsafe.Pointer(interpreterValue.UnsafeAddr())).Elem().Interface().(*vm.EVMInterpreter)
+	if !ok {
+		return nil, gas, errors.New("unable to get interpreter")
+	}
+	if depth > int(params.CallCreateDepth) {
+		return nil, gas, vm.ErrDepth
+	}
+	var snapshot = evm.StateDB.Snapshot()
+
+	// Invoke tracer hooks that signal entering/exiting a call frame
+	if evm.Config().Debug {
+		evm.Config().Tracer.CaptureEnter(vm.DELEGATECALL, caller.Address(), addr, input, gas, nil)
+		defer func(startGas uint64) {
+			evm.Config().Tracer.CaptureExit(ret, startGas-gas, err)
+		}(gas)
+	}
+
+	// It is allowed to call precompiles, even via delegatecall
+	if p, isPrecompile := evm.Precompile(addr); isPrecompile {
+		if customPrecompiledContracts[addr] != nil {
+			ret, gas, err = evm.RunStatefulPrecompiledContract(tmpCtx, customPrecompiledContracts[addr], caller.Address(), input, gas, big.NewInt(0))
+		} else {
+			ret, gas, err = vm.RunPrecompiledContract(p, input, gas)
+		}
+	} else {
+		addrCopy := addr
+		// Initialise a new contract and make initialise the delegate values
+		contract := vm.NewContract(caller, vm.AccountRef(caller.Address()), nil, gas).AsDelegate()
+		contract.SetCallCode(&addrCopy, evm.StateDB.GetCodeHash(addrCopy), evm.StateDB.GetCode(addrCopy))
+		ret, err = interpreter.Run(contract, input, false)
+		gas = contract.Gas
+	}
+	if err != nil {
+		evm.StateDB.RevertToSnapshot(snapshot)
+		if err != vm.ErrExecutionReverted {
+			gas = 0
+		}
+	}
+	return ret, gas, err
+}
