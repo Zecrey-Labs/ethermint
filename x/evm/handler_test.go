@@ -1,7 +1,9 @@
 package evm_test
 
 import (
+	"encoding/hex"
 	"errors"
+	"fmt"
 	"math/big"
 	"testing"
 	"time"
@@ -275,7 +277,6 @@ func (suite *EvmTestSuite) TestHandlerLogs() {
 	// 	"opcodes": "PUSH1 0x80 PUSH1 0x40 MSTORE CALLVALUE DUP1 ISZERO PUSH1 0xF JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST POP PUSH1 0x11 PUSH32 0x775A94827B8FD9B519D36CD827093C664F93347070A554F65E4A6F56CD738898 PUSH1 0x40 MLOAD PUSH1 0x40 MLOAD DUP1 SWAP2 SUB SWAP1 LOG2 PUSH1 0x35 DUP1 PUSH1 0x4B PUSH1 0x0 CODECOPY PUSH1 0x0 RETURN INVALID PUSH1 0x80 PUSH1 0x40 MSTORE PUSH1 0x0 DUP1 REVERT INVALID LOG1 PUSH6 0x627A7A723058 KECCAK256 PUSH13 0xAB665F0F557620554BB45ADF26 PUSH8 0x8D2BD349B8A4314 0xbd SELFDESTRUCT KECCAK256 0x5e 0xe8 DIFFICULTY 0xe EXTCODECOPY 0x24 STOP 0x29 ",
 	// 	"sourceMap": "25:119:0:-;;;90:52;8:9:-1;5:2;;;30:1;27;20:12;5:2;90:52:0;132:2;126:9;;;;;;;;;;25:119;;;;;;"
 	// }
-
 	gasLimit := uint64(100000)
 	gasPrice := big.NewInt(1000000)
 
@@ -293,6 +294,22 @@ func (suite *EvmTestSuite) TestHandlerLogs() {
 
 	suite.Require().Equal(len(txResponse.Logs), 1)
 	suite.Require().Equal(len(txResponse.Logs[0].Topics), 2)
+}
+
+func (suite *EvmTestSuite) TestCallPrecompiledContracts() {
+	gasLimit := uint64(100000)
+	gasPrice := big.NewInt(1000000)
+	precompiled := common.HexToAddress("0x02")
+	tx := types.NewTx(suite.chainID, 1, &precompiled, nil, gasLimit, gasPrice, nil, nil, []byte{1, 2, 3, 4}, nil)
+	suite.SignTx(tx)
+	result, err := suite.handler(suite.ctx, tx)
+	suite.Require().NoError(err, "failed to handle eth tx msg")
+	var txResponse types.MsgEthereumTxResponse
+
+	err = proto.Unmarshal(result.Data, &txResponse)
+	suite.Require().NoError(err, "failed to decode result data")
+	fmt.Println(txResponse.Hash)
+	fmt.Println(hex.EncodeToString(txResponse.Ret))
 }
 
 func (suite *EvmTestSuite) TestDeployAndCallContract() {
@@ -527,7 +544,7 @@ func (suite *EvmTestSuite) deployERC20Contract() common.Address {
 		nil,
 		true,
 	)
-	rsp, err := k.ApplyMessage(suite.ctx, "", msg, nil, true)
+	rsp, err := k.ApplyMessage(suite.ctx, msg, nil, true)
 	suite.Require().NoError(err)
 	suite.Require().False(rsp.Failed())
 	return crypto.CreateAddress(suite.from, nonce)

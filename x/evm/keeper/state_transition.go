@@ -16,6 +16,7 @@
 package keeper
 
 import (
+	"github.com/ethereum/go-ethereum/common/math"
 	"math/big"
 
 	tmtypes "github.com/tendermint/tendermint/types"
@@ -159,11 +160,21 @@ func (k *Keeper) ApplyTransaction(ctx sdk.Context, tx *ethtypes.Transaction, sen
 	txConfig := k.TxConfig(ctx, tx.Hash())
 
 	// get the signer according to the chain rules from the config and block height
-	signer := ethtypes.MakeSigner(cfg.ChainConfig, big.NewInt(ctx.BlockHeight()))
-	msg, err := tx.AsMessage(signer, cfg.BaseFee)
-	if err != nil {
-		return nil, errorsmod.Wrap(err, "failed to return ethereum transaction as core message")
+	//msg, err := tx.AsMessage(signer, cfg.BaseFee)
+	var gasPrice *big.Int
+	gasPrice = new(big.Int).Set(tx.GasPrice())
+	if cfg.BaseFee != nil {
+		gasPrice = math.BigMin(tx.GasPrice().Add(tx.GasTipCap(), cfg.BaseFee), tx.GasFeeCap())
 	}
+	if sender == "" {
+		signer := ethtypes.MakeSigner(cfg.ChainConfig, big.NewInt(ctx.BlockHeight()))
+		senderAddr, err := ethtypes.Sender(signer, tx)
+		if err != nil {
+			return nil, err
+		}
+		sender = senderAddr.Hex()
+	}
+	msg := ethtypes.NewMessage(common.HexToAddress(sender), tx.To(), tx.Nonce(), tx.Value(), tx.Gas(), gasPrice, tx.GasFeeCap(), tx.GasTipCap(), tx.Data(), tx.AccessList(), false)
 
 	// snapshot to contain the tx processing and post processing in same scope
 	var commit func()
@@ -177,7 +188,7 @@ func (k *Keeper) ApplyTransaction(ctx sdk.Context, tx *ethtypes.Transaction, sen
 	}
 
 	// pass true to commit the StateDB
-	res, err := k.ApplyMessageWithConfig(tmpCtx, sender, msg, nil, true, cfg, txConfig)
+	res, err := k.ApplyMessageWithConfig(tmpCtx, msg, nil, true, cfg, txConfig)
 	if err != nil {
 		return nil, errorsmod.Wrap(err, "failed to apply ethereum core message")
 	}
@@ -262,14 +273,14 @@ func (k *Keeper) ApplyTransaction(ctx sdk.Context, tx *ethtypes.Transaction, sen
 }
 
 // ApplyMessage calls ApplyMessageWithConfig with an empty TxConfig.
-func (k *Keeper) ApplyMessage(ctx sdk.Context, senderAddr string, msg core.Message, tracer vm.EVMLogger, commit bool) (*types.MsgEthereumTxResponse, error) {
+func (k *Keeper) ApplyMessage(ctx sdk.Context, msg core.Message, tracer vm.EVMLogger, commit bool) (*types.MsgEthereumTxResponse, error) {
 	cfg, err := k.EVMConfig(ctx, sdk.ConsAddress(ctx.BlockHeader().ProposerAddress), k.eip155ChainID)
 	if err != nil {
 		return nil, errorsmod.Wrap(err, "failed to load evm config")
 	}
 
 	txConfig := statedb.NewEmptyTxConfig(common.BytesToHash(ctx.HeaderHash()))
-	return k.ApplyMessageWithConfig(ctx, senderAddr, msg, tracer, commit, cfg, txConfig)
+	return k.ApplyMessageWithConfig(ctx, msg, tracer, commit, cfg, txConfig)
 }
 
 // ApplyMessageWithConfig computes the new state by applying the given message against the existing state.
@@ -312,7 +323,6 @@ func (k *Keeper) ApplyMessage(ctx sdk.Context, senderAddr string, msg core.Messa
 // If commit is true, the `StateDB` will be committed, otherwise discarded.
 func (k *Keeper) ApplyMessageWithConfig(
 	ctx sdk.Context,
-	senderAddr string,
 	msg core.Message,
 	tracer vm.EVMLogger,
 	commit bool,
@@ -323,10 +333,6 @@ func (k *Keeper) ApplyMessageWithConfig(
 		ret   []byte // return bytes from nEVM execution
 		vmErr error  // vm errors do not effect consensus and are therefore not assigned to err
 	)
-
-	if senderAddr == "" {
-		senderAddr = msg.From().Hex()
-	}
 
 	// return error if contract creation or call are disabled through governance
 	if !cfg.Params.EnableCreate && msg.To() == nil {
@@ -349,7 +355,7 @@ func (k *Keeper) ApplyMessageWithConfig(
 		}()
 	}
 
-	sender := vm.AccountRef(common.HexToAddress(senderAddr))
+	sender := vm.AccountRef(common.HexToAddress(msg.From().Hex()))
 	contractCreation := msg.To() == nil
 	isLondon := cfg.ChainConfig.IsLondon(nEVM.Context().BlockNumber)
 

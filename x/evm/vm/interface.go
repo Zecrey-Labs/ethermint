@@ -59,7 +59,7 @@ type EVM interface {
 
 	ActivePrecompiles(rules params.Rules) []common.Address
 	Precompile(addr common.Address) (vm.PrecompiledContract, bool)
-	RunPrecompiledContract(
+	RunStatefulPrecompiledContract(
 		p StatefulPrecompiledContract,
 		addr common.Address,
 		input []byte,

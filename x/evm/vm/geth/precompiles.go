@@ -16,6 +16,7 @@
 package geth
 
 import (
+	"github.com/ethereum/go-ethereum/common"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -39,4 +40,8 @@ func GetPrecompiles(cfg *params.ChainConfig, blockNumber *big.Int) evm.Precompil
 		precompiles = vm.PrecompiledContractsHomestead
 	}
 	return precompiles
+}
+
+func SetCustomPrecompiledContracts(customContracts map[common.Address]evm.StatefulPrecompiledContract) {
+	customPrecompiledContracts = customContracts
 }
