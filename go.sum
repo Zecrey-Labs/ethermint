@@ -1017,8 +1017,8 @@ github.com/yuin/goldmark v1.3.5/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1
 github.com/yuin/goldmark v1.4.1/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
 github.com/zecrey-labs/cosmos-sdk v0.46.7-blsv1.3 h1:b9PVyXEo/JbFe+tmnGCwJ3S23bBk7VlZ5vbzH/gQG8E=
 github.com/zecrey-labs/cosmos-sdk v0.46.7-blsv1.3/go.mod h1:UO5sZ+G7URYNTkHcFysV6uCG2cs1FmXsCHjHrlqydE0=
-github.com/zecrey-labs/go-ethereum v1.10.26-zecreyosv0.2 h1:H7QQJNsGy28DTxRrf0m+gHNGFoTg4jJLRKpGsTUI9T8=
-github.com/zecrey-labs/go-ethereum v1.10.26-zecreyosv0.2/go.mod h1:EYFyF19u3ezGLD4RqOkLq+ZCXzYbLoNDdZlMt7kyKFg=
+github.com/zecrey-labs/go-ethereum v1.10.26-zecreyosv0.3 h1:agvVSFxfevhJAXmJTQz/j+glSbmzXptgKxwVCjcnHcg=
+github.com/zecrey-labs/go-ethereum v1.10.26-zecreyosv0.3/go.mod h1:EYFyF19u3ezGLD4RqOkLq+ZCXzYbLoNDdZlMt7kyKFg=
 github.com/zecrey-labs/tendermint v0.34.24-blsv2 h1:OdpFaljXKI9YbM97bO/ERV4Mbu4wtwU3IcDCZZujRqY=
 github.com/zecrey-labs/tendermint v0.34.24-blsv2/go.mod h1:Ywjife+ZJraOr0FfgLuV8ovB3r6/vBpoPwaTnrJwAlA=
 github.com/zondax/hid v0.9.1 h1:gQe66rtmyZ8VeGFcOpbuH3r7erYtNEAezCAYu8LdkJo=
