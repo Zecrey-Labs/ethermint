@@ -59,15 +59,6 @@ type EVM interface {
 
 	ActivePrecompiles(rules params.Rules) []common.Address
 	Precompile(addr common.Address) (vm.PrecompiledContract, bool)
-	RunStatefulPrecompiledContract(
-		ctx sdk.Context,
-		p StatefulPrecompiledContract,
-		addr common.Address,
-		input []byte,
-		suppliedGas uint64,
-		value *big.Int) (
-		ret []byte, remainingGas uint64, err error,
-	)
 }
 
 // Constructor defines the function used to instantiate the EVM on

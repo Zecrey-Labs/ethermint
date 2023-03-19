@@ -17,7 +17,6 @@ package keeper
 
 import (
 	"github.com/ethereum/go-ethereum/common/math"
-	"github.com/evmos/ethermint/x/evm/vm/geth"
 	"math/big"
 
 	tmtypes "github.com/tendermint/tendermint/types"
@@ -388,7 +387,7 @@ func (k *Keeper) ApplyMessageWithConfig(
 		stateDB.SetNonce(sender.Address(), msg.Nonce()+1)
 	} else {
 		// TODO set info here, ugly method
-		geth.SetTmpConfig(ctx, commit)
+		vm.SetTmpConfig(ctx, commit)
 		ret, leftoverGas, vmErr = nEVM.Call(sender, *msg.To(), msg.Data(), leftoverGas, msg.Value())
 	}
 
