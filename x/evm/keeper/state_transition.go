@@ -386,8 +386,6 @@ func (k *Keeper) ApplyMessageWithConfig(
 		ret, _, leftoverGas, vmErr = nEVM.Create(sender, msg.Data(), leftoverGas, msg.Value())
 		stateDB.SetNonce(sender.Address(), msg.Nonce()+1)
 	} else {
-		// TODO set info here, ugly method
-		vm.SetTmpConfig(ctx, commit)
 		ret, leftoverGas, vmErr = nEVM.Call(sender, *msg.To(), msg.Data(), leftoverGas, msg.Value())
 	}
 
