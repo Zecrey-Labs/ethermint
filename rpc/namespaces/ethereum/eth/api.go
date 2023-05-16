@@ -169,6 +169,12 @@ func (e *PublicAPI) GetBlockByHash(hash common.Hash, fullTx bool) (map[string]in
 	return e.backend.GetBlockByHash(hash, fullTx)
 }
 
+// BlockReceipts returns the block identified by hash.
+func (e *PublicAPI) BlockReceipts(blockNum uint64) (*ethtypes.Receipts, error) {
+	e.logger.Debug("eth_blockReceipts", "block height", blockNum)
+	return e.backend.BlockReceipts(blockNum)
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 ///                           Read Txs					                            ///
 ///////////////////////////////////////////////////////////////////////////////
