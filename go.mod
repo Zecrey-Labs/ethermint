@@ -197,7 +197,7 @@ require (
 replace (
 	// use cosmos keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.1.7-0.20210622111912-ef00f8ac3d76
-	github.com/cosmos/cosmos-sdk => github.com/zecrey-labs/cosmos-sdk v0.46.7-blsv0.8
+	github.com/cosmos/cosmos-sdk => github.com/zecrey-labs/cosmos-sdk v0.46.7-kontosv0.1
 
 	github.com/ethereum/go-ethereum => github.com/zecrey-labs/go-ethereum v1.10.26-kontosv0.4
 
