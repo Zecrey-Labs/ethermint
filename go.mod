@@ -207,5 +207,5 @@ replace (
 	// use cosmos flavored protobufs
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 
-	github.com/tendermint/tendermint => github.com/zecrey-labs/tendermint v0.34.24-blsv0.7
+	github.com/tendermint/tendermint => github.com/zecrey-labs/tendermint-kontos v0.34.24-kontosv0.1
 )
