@@ -17,6 +17,7 @@ package backend
 
 import (
 	"context"
+	"github.com/ethereum/go-ethereum/common/math"
 	"math/big"
 	"time"
 
@@ -111,7 +112,7 @@ type EVMBackend interface {
 	CurrentHeader() *ethtypes.Header
 	PendingTransactions() ([]*sdk.Tx, error)
 	GetCoinbase() (sdk.AccAddress, error)
-	FeeHistory(blockCount rpc.DecimalOrHex, lastBlock rpc.BlockNumber, rewardPercentiles []float64) (*rpctypes.FeeHistoryResult, error)
+	FeeHistory(blockCount math.HexOrDecimal64, lastBlock rpc.BlockNumber, rewardPercentiles []float64) (*rpctypes.FeeHistoryResult, error)
 	SuggestGasTipCap(baseFee *big.Int) (*big.Int, error)
 
 	// Tx Info

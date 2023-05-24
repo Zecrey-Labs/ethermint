@@ -144,15 +144,15 @@ func newNativeMessage(
 
 	msg, baseFee, err := newEthMsgTx(nonce, blockHeight, address, cfg, krSigner, ethSigner, txType, data, accessList)
 	if err != nil {
-		return nil, err
+		return core.Message{}, err
 	}
 
 	m, err := msg.AsMessage(msgSigner, baseFee)
 	if err != nil {
-		return nil, err
+		return core.Message{}, err
 	}
 
-	return m, nil
+	return *m, nil
 }
 
 func BenchmarkApplyTransaction(b *testing.B) {
@@ -263,7 +263,7 @@ func BenchmarkApplyMessage(b *testing.B) {
 		require.NoError(b, err)
 
 		b.StartTimer()
-		resp, err := suite.app.EvmKeeper.ApplyMessage(suite.ctx, "", m, nil, true)
+		resp, err := suite.app.EvmKeeper.ApplyMessage(suite.ctx, m, nil, true)
 		b.StopTimer()
 
 		require.NoError(b, err)
@@ -298,7 +298,7 @@ func BenchmarkApplyMessageWithLegacyTx(b *testing.B) {
 		require.NoError(b, err)
 
 		b.StartTimer()
-		resp, err := suite.app.EvmKeeper.ApplyMessage(suite.ctx, "", m, nil, true)
+		resp, err := suite.app.EvmKeeper.ApplyMessage(suite.ctx, m, nil, true)
 		b.StopTimer()
 
 		require.NoError(b, err)
@@ -333,7 +333,7 @@ func BenchmarkApplyMessageWithDynamicFeeTx(b *testing.B) {
 		require.NoError(b, err)
 
 		b.StartTimer()
-		resp, err := suite.app.EvmKeeper.ApplyMessage(suite.ctx, "", m, nil, true)
+		resp, err := suite.app.EvmKeeper.ApplyMessage(suite.ctx, m, nil, true)
 		b.StopTimer()
 
 		require.NoError(b, err)

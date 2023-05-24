@@ -417,7 +417,6 @@ func (suite *KeeperTestSuite) TestRefundGas() {
 			ethCfg := keeperParams.ChainConfig.EthereumConfig(suite.app.EvmKeeper.ChainID())
 			signer := ethtypes.LatestSignerForChainID(suite.app.EvmKeeper.ChainID())
 			vmdb := suite.StateDB()
-
 			m, err = newNativeMessage(
 				vmdb.GetNonce(suite.address),
 				suite.ctx.BlockHeight(),
@@ -433,7 +432,7 @@ func (suite *KeeperTestSuite) TestRefundGas() {
 
 			vmdb.AddRefund(params.TxGas)
 
-			if tc.leftoverGas > m.Gas() {
+			if tc.leftoverGas > m.GasLimit {
 				return
 			}
 
@@ -441,7 +440,7 @@ func (suite *KeeperTestSuite) TestRefundGas() {
 				tc.malleate()
 			}
 
-			gasUsed := m.Gas() - tc.leftoverGas
+			gasUsed := m.GasLimit - tc.leftoverGas
 			refund := keeper.GasToRefund(vmdb.GetRefund(), gasUsed, tc.refundQuotient)
 			suite.Require().Equal(tc.expGasRefund, refund)
 
@@ -559,7 +558,7 @@ func (suite *KeeperTestSuite) TestApplyMessage() {
 	)
 	suite.Require().NoError(err)
 
-	res, err := suite.app.EvmKeeper.ApplyMessage(suite.ctx, "", msg, tracer, true)
+	res, err := suite.app.EvmKeeper.ApplyMessage(suite.ctx, msg, tracer, true)
 
 	suite.Require().NoError(err)
 	suite.Require().Equal(expectedGasUsed, res.GasUsed)
@@ -648,7 +647,7 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 			txConfig = suite.app.EvmKeeper.TxConfig(suite.ctx, common.Hash{})
 
 			tc.malleate()
-			res, err := suite.app.EvmKeeper.ApplyMessageWithConfig(suite.ctx, "", msg, nil, true, config, txConfig)
+			res, err := suite.app.EvmKeeper.ApplyMessageWithConfig(suite.ctx, msg, nil, true, config, txConfig)
 
 			if tc.expErr {
 				suite.Require().Error(err)
@@ -665,11 +664,12 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 func (suite *KeeperTestSuite) createContractGethMsg(nonce uint64, signer ethtypes.Signer, cfg *params.ChainConfig, gasPrice *big.Int) (core.Message, error) {
 	ethMsg, err := suite.createContractMsgTx(nonce, signer, cfg, gasPrice)
 	if err != nil {
-		return nil, err
+		return core.Message{}, err
 	}
 
 	msgSigner := ethtypes.MakeSigner(cfg, big.NewInt(suite.ctx.BlockHeight()))
-	return ethMsg.AsMessage(msgSigner, nil)
+	m, err := ethMsg.AsMessage(msgSigner, nil)
+	return *m, err
 }
 
 func (suite *KeeperTestSuite) createContractMsgTx(nonce uint64, signer ethtypes.Signer, cfg *params.ChainConfig, gasPrice *big.Int) (*types.MsgEthereumTx, error) {

@@ -71,9 +71,9 @@ func (k Keeper) VMConfig(ctx sdk.Context, msg core.Message, cfg *statedb.EVMConf
 	}
 
 	return vm.Config{
-		Debug:     debug,
-		Tracer:    tracer,
-		NoBaseFee: noBaseFee,
-		ExtraEips: cfg.Params.EIPs(),
+		EnablePreimageRecording: debug,
+		Tracer:                  tracer,
+		NoBaseFee:               noBaseFee,
+		ExtraEips:               cfg.Params.EIPs(),
 	}
 }

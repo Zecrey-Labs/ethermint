@@ -16,11 +16,9 @@
 package types
 
 import (
+	"github.com/ethereum/go-ethereum/eth/tracers/logger"
 	"math/big"
 	"os"
-	"time"
-
-	"github.com/ethereum/go-ethereum/eth/tracers/logger"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
@@ -45,8 +43,9 @@ func NewTracer(tracer string, msg core.Message, cfg *params.ChainConfig, height 
 
 	switch tracer {
 	case TracerAccessList:
-		preCompiles := vm.ActivePrecompiles(cfg.Rules(big.NewInt(height), cfg.MergeNetsplitBlock != nil))
-		return logger.NewAccessListTracer(msg.AccessList(), msg.From(), *msg.To(), preCompiles)
+		// todo isMerge ?
+		preCompiles := vm.ActivePrecompiles(cfg.Rules(big.NewInt(height), cfg.MergeNetsplitBlock != nil, 0))
+		return logger.NewAccessListTracer(msg.AccessList, msg.From, *msg.To, preCompiles)
 	case TracerJSON:
 		return logger.NewJSONLogger(logCfg, os.Stderr)
 	case TracerMarkdown:
@@ -93,7 +92,7 @@ func (dt NoOpTracer) CaptureFault(pc uint64, op vm.OpCode, gas, cost uint64, sco
 }
 
 // CaptureEnd implements vm.Tracer interface
-func (dt NoOpTracer) CaptureEnd(output []byte, gasUsed uint64, tm time.Duration, err error) {}
+func (dt NoOpTracer) CaptureEnd(output []byte, gasUsed uint64, err error) {}
 
 // CaptureEnter implements vm.Tracer interface
 func (dt NoOpTracer) CaptureEnter(typ vm.OpCode, from common.Address, to common.Address, input []byte, gas uint64, value *big.Int) {
