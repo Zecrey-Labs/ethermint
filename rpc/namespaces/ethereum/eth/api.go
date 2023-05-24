@@ -171,7 +171,7 @@ func (e *PublicAPI) GetBlockByHash(hash common.Hash, fullTx bool) (map[string]in
 
 // BlockReceipts returns the block identified by hash.
 func (e *PublicAPI) BlockReceipts(blockNum uint64) (*ethtypes.Receipts, error) {
-	e.logger.Debug("eth_blockReceipts", "block height", blockNum)
+	e.logger.Debug("eth_blockReceipts", "number", blockNum)
 	return e.backend.BlockReceipts(blockNum)
 }
 
