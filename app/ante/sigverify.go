@@ -17,6 +17,7 @@ package ante
 
 import (
 	"math/big"
+	"time"
 
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -48,7 +49,8 @@ func (esvd EthSigVerificationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, s
 	chainCfg := evmParams.GetChainConfig()
 	ethCfg := chainCfg.EthereumConfig(chainID)
 	blockNum := big.NewInt(ctx.BlockHeight())
-	signer := ethtypes.MakeSigner(ethCfg, blockNum)
+	// todo time.Now() => tx.time, though cancun signer makes no effect on evm operations
+	signer := ethtypes.MakeSigner(ethCfg, blockNum, uint64(time.Now().Unix()))
 
 	for _, msg := range tx.GetMsgs() {
 		msgEthTx, ok := msg.(*evmtypes.MsgEthereumTx)

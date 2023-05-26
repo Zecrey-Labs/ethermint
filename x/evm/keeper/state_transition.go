@@ -18,6 +18,7 @@ package keeper
 import (
 	"github.com/ethereum/go-ethereum/common/math"
 	"math/big"
+	"time"
 
 	tmtypes "github.com/tendermint/tendermint/types"
 
@@ -167,7 +168,8 @@ func (k *Keeper) ApplyTransaction(ctx sdk.Context, tx *ethtypes.Transaction, sen
 		gasPrice = math.BigMin(tx.GasPrice().Add(tx.GasTipCap(), cfg.BaseFee), tx.GasFeeCap())
 	}
 	if sender == "" {
-		signer := ethtypes.MakeSigner(cfg.ChainConfig, big.NewInt(ctx.BlockHeight()))
+		// todo time.Now() => tx.time, though cancun signer makes no effect on evm operations
+		signer := ethtypes.MakeSigner(cfg.ChainConfig, big.NewInt(ctx.BlockHeight()), uint64(time.Now().Unix()))
 		senderAddr, err := ethtypes.Sender(signer, tx)
 		if err != nil {
 			return nil, err

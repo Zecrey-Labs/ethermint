@@ -36,7 +36,7 @@ func (k *Keeper) GetEthIntrinsicGas(ctx sdk.Context, msg core.Message, cfg *para
 	homestead := cfg.IsHomestead(height)
 	istanbul := cfg.IsIstanbul(height)
 	// todo timestamp
-	shanghai := cfg.IsShanghai(0)
+	shanghai := cfg.IsShanghai(height, 0)
 
 	return core.IntrinsicGas(msg.Data, msg.AccessList, isContractCreation, homestead, istanbul, shanghai)
 }

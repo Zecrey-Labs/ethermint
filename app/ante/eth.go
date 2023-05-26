@@ -18,6 +18,7 @@ package ante
 import (
 	"math"
 	"math/big"
+	"time"
 
 	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
@@ -157,7 +158,7 @@ func (egcd EthGasConsumeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 	homestead := ethCfg.IsHomestead(blockHeight)
 	istanbul := ethCfg.IsIstanbul(blockHeight)
 	// todo timestamp
-	shanghai := ethCfg.IsShanghai(0)
+	shanghai := ethCfg.IsShanghai(blockHeight, 0)
 	var events sdk.Events
 
 	// Use the lowest priority of all the messages as the final one.
@@ -262,7 +263,8 @@ func NewCanTransferDecorator(evmKeeper EVMKeeper) CanTransferDecorator {
 func (ctd CanTransferDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (sdk.Context, error) {
 	params := ctd.evmKeeper.GetParams(ctx)
 	ethCfg := params.ChainConfig.EthereumConfig(ctd.evmKeeper.ChainID())
-	signer := ethtypes.MakeSigner(ethCfg, big.NewInt(ctx.BlockHeight()))
+	// todo time.Now() => tx.time, though cancun signer makes no effect on evm operations
+	signer := ethtypes.MakeSigner(ethCfg, big.NewInt(ctx.BlockHeight()), uint64(time.Now().Unix()))
 
 	for _, msg := range tx.GetMsgs() {
 		msgEthTx, ok := msg.(*evmtypes.MsgEthereumTx)
