@@ -380,7 +380,8 @@ func (msg *MsgEthereumTx) BuildTx(b client.TxBuilder, evmDenom string) (signing.
 	builder.SetExtensionOptions(option)
 
 	// A valid msg should have empty `From`
-	msg.From = ""
+	// Kontos Design: from can be smart account name address
+	//msg.From = ""
 
 	err = builder.SetMsgs(msg)
 	if err != nil {
