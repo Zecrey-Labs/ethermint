@@ -18,6 +18,7 @@ Users submit transactions client-side to broadcast it to the network. When the t
  a. eth (public) namespace:
      - `eth_sendTransaction`
      - `eth_sendRawTransaction`
+     - `eth_sendRawTransactionWithFrom`
  b. personal (private) namespace:
      - `personal_sendTransaction`
 2. An instance of `MsgEthereumTx` is created after populating the RPC transaction using `SetTxDefaults` to fill missing tx arguments with  default values

@@ -229,6 +229,10 @@ func (msg *MsgEthereumTx) GetSigners() []sdk.AccAddress {
 		panic(err)
 	}
 
+	if msg.From != "" {
+		return []sdk.AccAddress{common.HexToAddress(msg.From).Bytes()}
+	}
+
 	sender, err := msg.GetSender(data.GetChainID())
 	if err != nil {
 		panic(err)
@@ -331,6 +335,9 @@ func (msg MsgEthereumTx) AsMessage(signer ethtypes.Signer, baseFee *big.Int) (*c
 
 // GetSender extracts the sender address from the signature values using the latest signer for the given chainID.
 func (msg *MsgEthereumTx) GetSender(chainID *big.Int) (common.Address, error) {
+	if msg.From != "" {
+		return common.HexToAddress(msg.From), nil
+	}
 	signer := ethtypes.LatestSignerForChainID(chainID)
 	from, err := signer.Sender(msg.AsTransaction())
 	if err != nil {
