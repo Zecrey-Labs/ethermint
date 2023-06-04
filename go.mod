@@ -74,8 +74,7 @@ require (
 	github.com/cockroachdb/redact v1.1.3 // indirect
 	github.com/coinbase/rosetta-sdk-go v0.7.9 // indirect
 	github.com/confio/ics23/go v0.9.0 // indirect
-	github.com/consensys/bavard v0.1.13 // indirect
-	github.com/consensys/gnark-crypto v0.10.0 // indirect
+	github.com/consensys/gnark-crypto v0.11.1-0.20230508024855-0cd4994b7f0b // indirect
 	github.com/cosmos/btcutil v1.0.5 // indirect
 	github.com/cosmos/gorocksdb v1.2.0 // indirect
 	github.com/cosmos/iavl v0.19.4 // indirect
@@ -151,7 +150,6 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/go-testing-interface v1.0.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
-	github.com/mmcloughlin/addchain v0.4.0 // indirect
 	github.com/mtibben/percent v0.2.1 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
@@ -199,13 +197,12 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	nhooyr.io/websocket v1.8.6 // indirect
-	rsc.io/tmplfunc v0.0.3 // indirect
 )
 
 replace (
 	// use cosmos keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.1.7-0.20210622111912-ef00f8ac3d76
-	github.com/cosmos/cosmos-sdk => github.com/zecrey-labs/cosmos-sdk-kontos v0.46.7-edkontosv0.5
+	github.com/cosmos/cosmos-sdk => github.com/zecrey-labs/cosmos-sdk-kontos v0.46.7-edkontosv0.6
 
 	//github.com/ethereum/go-ethereum => github.com/zecrey-labs/go-ethereum v1.10.26-kontosv0.4
 
@@ -215,5 +212,5 @@ replace (
 	// use cosmos flavored protobufs
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 
-	github.com/tendermint/tendermint => github.com/zecrey-labs/tendermint-kontos v0.34.24-edkontosv0.6
+	github.com/tendermint/tendermint => github.com/zecrey-labs/tendermint-kontos v0.34.24-edkontosv0.10
 )
