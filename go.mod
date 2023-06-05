@@ -202,7 +202,7 @@ require (
 replace (
 	// use cosmos keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.1.7-0.20210622111912-ef00f8ac3d76
-	github.com/cosmos/cosmos-sdk => github.com/zecrey-labs/cosmos-sdk-kontos v0.46.7-edkontosv0.6
+	github.com/cosmos/cosmos-sdk => github.com/zecrey-labs/cosmos-sdk-kontos v0.46.7-edkontosv0.13
 
 	//github.com/ethereum/go-ethereum => github.com/zecrey-labs/go-ethereum v1.10.26-kontosv0.4
 
@@ -212,5 +212,5 @@ replace (
 	// use cosmos flavored protobufs
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 
-	github.com/tendermint/tendermint => github.com/zecrey-labs/tendermint-kontos v0.34.24-edkontosv0.10
+	github.com/tendermint/tendermint => github.com/zecrey-labs/tendermint-kontos v0.34.24-edkontosv0.14
 )
