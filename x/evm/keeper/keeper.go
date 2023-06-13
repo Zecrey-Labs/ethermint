@@ -251,9 +251,9 @@ func (k Keeper) GetAccountStorage(ctx sdk.Context, address common.Address) types
 // SetHooks sets the hooks for the EVM module
 // It should be called only once during initialization, it panic if called more than once.
 func (k *Keeper) SetHooks(eh types.EvmHooks) *Keeper {
-	if k.hooks != nil {
-		panic("cannot set evm hooks twice")
-	}
+	//if k.hooks != nil {
+	//	panic("cannot set evm hooks twice")
+	//}
 
 	k.hooks = eh
 	return k
