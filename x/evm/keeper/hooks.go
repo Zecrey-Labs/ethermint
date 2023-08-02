@@ -17,7 +17,6 @@ package keeper
 
 import (
 	errorsmod "cosmossdk.io/errors"
-	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -37,9 +36,7 @@ func NewMultiEvmHooks(hooks ...types.EvmHooks) MultiEvmHooks {
 // PostTxProcessing delegate the call to underlying hooks
 func (mh MultiEvmHooks) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *ethtypes.Receipt) error {
 	for i := range mh {
-		fmt.Println("multi evm hooks..............................................................1:", i)
 		if err := mh[i].PostTxProcessing(ctx, msg, receipt); err != nil {
-			fmt.Println("multi evm hooks..............................................................err:", err.Error())
 			return errorsmod.Wrapf(err, "EVM hook %T failed", mh[i])
 		}
 	}
